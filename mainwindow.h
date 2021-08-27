@@ -4,7 +4,7 @@
 #include <QMainWindow>
 #include <QGraphicsScene>
 #include <QGraphicsView>
-#include "labirinto.h"
+#include "mundo.h"
 
 class MainWindow : public QMainWindow
 {
@@ -17,19 +17,22 @@ public:
     void setTamanhoLabirinto(long Tamanho);
     long getTamanhoLabirinto();
     void desenharCena();
+    void carregarMapa();
 
 protected:
-    //QPixmap *Agente;
-    QPixmap *Sujeira;
-    QPixmap *Parede;
-
-
+    QString fileName;
+private slots:
+    void onClickBotaoPasso();
 private:
     QGraphicsView *view;
     QGraphicsScene *cena;
     long Tamanho;
-    Labirinto *labirinto;
+    int rodando;
+    void delay();
 
+    Mundo *w;
     static const int TAMANHO_RETANGULO = 40;
+
+    void atualizar();
 };
 #endif // MAINWINDOW_H

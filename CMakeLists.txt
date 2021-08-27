@@ -33,10 +33,6 @@ set(PROJECT_SOURCES
         mainwindow.h
         agente.h
         agente.cpp
-        labirinto.h
-        labirinto.cpp
-        sujeira.h
-        sujeira.cpp
         mundo.h
         mundo.cpp
 )

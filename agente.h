@@ -11,7 +11,13 @@ public:
 
 
     enum acoes
-    { ESQUERDA, DIREITA, CIMA, BAIXO, PARADO };
+    {
+        ESQUERDA,
+        DIREITA,
+        CIMA,
+        BAIXO,
+        PARADO
+    };
 
     QPixmap imagem;
 

@@ -1,12 +1,11 @@
 #include "mainwindow.h"
 #include <QRandomGenerator>
 #include "agente.h"
+#include <QLabel>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    //labirinto = new Labirinto(this, 3);
-
     this->resize(500,500);
     view = new QGraphicsView(this);
     cena = new QGraphicsScene();
@@ -15,14 +14,47 @@ MainWindow::MainWindow(QWidget *parent)
 
     view->resize(500,500);
 
+    fileName = "./teste.map";
+    carregarMapa();
+
     desenharCena();
 
+
+    QPushButton *btn = new QPushButton("clique", this);
+
+    connect(btn, &QPushButton::clicked, this, &MainWindow::onClickBotaoPasso);
 }
 
 MainWindow::~MainWindow()
 {
 }
 
+void MainWindow::carregarMapa()
+{
+    w = new Mundo(fileName.toLocal8Bit().constData());
+    if(w->getMensagemErro().isEmpty())
+    {
+            rodando = 1;
+    }
+}
+
+void MainWindow::onClickBotaoPasso()
+{
+    while(true)
+    {
+        delay();
+        w->realizarUmaAcao();
+        desenharCena();
+    }
+    //w->resetMapa();
+}
+
+void MainWindow::delay()
+{
+        QTime dieTime= QTime::currentTime().addMSecs(150);
+        while (QTime::currentTime() < dieTime)
+            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+}
 void MainWindow::setTamanhoLabirinto(long Tamanho)
 {
     this->Tamanho = Tamanho;
@@ -44,20 +76,18 @@ void MainWindow::desenharCena()
             QPen *pen = new QPen(QColor(130,50,10));
             QBrush *brush = new QBrush(QColor(130,50,10));
 
-            //Random
+            //Desenhar o mundo conforme os Lines
 
-            /*if(QRandomGenerator::global()->bounded(10) == 5)
+            if(w->getMundo().at(i)->at(j) != -1)
             {
-                pen->setColor(QColor(250,250,200));
-                brush->setColor(QColor(250,250,200));
+                //int sujeira = w->getMundo().at(i)->at(j);
+                int corSujeira = 255;
+
+                pen->setColor(QColor(corSujeira, corSujeira, corSujeira));
+                brush->setColor(QColor(corSujeira, corSujeira, corSujeira));
 
             }
-            else
-            {*/
-                pen->setColor(QColor(130,50,10));
-                brush->setColor(QColor(130,50,10));
-            /*}*/
-            //chao
+
             cena->addRect(i*TAMANHO_RETANGULO, j * TAMANHO_RETANGULO, TAMANHO_RETANGULO, TAMANHO_RETANGULO, *pen, *brush);
 
             delete pen;
@@ -69,15 +99,15 @@ void MainWindow::desenharCena()
 
     QVector<QPoint> triangle;
     QColor color(111, 255, 232);
-    /*if (w->isJustBumped())
-        color.setRgb(255, 0, 0);*/
+    if (w->getBateu())
+        color.setRgb(255, 0, 0);
 
-    Agente::acoes acao; //tem que pegar a ultima
+    Agente::acoes acao = w->getUltimaAcao(); //tem que pegar a ultima
 
     QPen pen(color);
     QBrush brush(color);
-    int posX = 5 * TAMANHO_RETANGULO,
-        posY = 5 * TAMANHO_RETANGULO;
+    int posX = w->getAgentePosX() * TAMANHO_RETANGULO,
+        posY = w->getAgentePosY() * TAMANHO_RETANGULO;
 
 
     switch (acao)
@@ -135,4 +165,31 @@ void MainWindow::desenharCena()
                        pen, brush);
     else
         cena->addPolygon(QPolygon(triangle), pen, brush);
+
+    atualizar();
+}
+
+void MainWindow::atualizar()
+{
+    QString ultimaAcao;
+
+    switch (w->getUltimaAcao()) {
+    case Agente::CIMA:
+        ultimaAcao = "Cima";
+        break;
+    case Agente::BAIXO:
+        ultimaAcao = "Baixo";
+        break;
+    case Agente::ESQUERDA:
+        ultimaAcao = "Esquerda";
+        break;
+    case Agente::DIREITA:
+        ultimaAcao = "Direita";
+        break;
+    default:
+        ultimaAcao = "Parado";
+        break;
+    }
+
+    ultimaAcao.append((w->getBateu())? (QString("Bateu!")):(NULL));
 }
