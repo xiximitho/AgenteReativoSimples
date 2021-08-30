@@ -26,9 +26,12 @@ private slots:
 private:
     QGraphicsView *view;
     QGraphicsScene *cena;
+    QLabel *qtdLimpo;
+    QPushButton *btnIniciar;
     long Tamanho;
     int rodando;
     void delay();
+    int Limpo;
 
     Mundo *w;
     static const int TAMANHO_RETANGULO = 40;

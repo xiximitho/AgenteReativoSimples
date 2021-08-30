@@ -16,7 +16,8 @@ public:
         DIREITA,
         CIMA,
         BAIXO,
-        PARADO
+        PARADO,
+        LIMPOU
     };
 
     QPixmap imagem;

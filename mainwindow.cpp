@@ -20,9 +20,13 @@ MainWindow::MainWindow(QWidget *parent)
     desenharCena();
 
 
-    QPushButton *btn = new QPushButton("clique", this);
 
-    connect(btn, &QPushButton::clicked, this, &MainWindow::onClickBotaoPasso);
+    qtdLimpo = new QLabel("", this);
+
+    btnIniciar = new QPushButton("Iniciar", this);
+    btnIniciar->move(btnIniciar->x() + 20, btnIniciar->y());
+
+    connect(btnIniciar, &QPushButton::clicked, this, &MainWindow::onClickBotaoPasso);
 }
 
 MainWindow::~MainWindow()
@@ -35,13 +39,15 @@ void MainWindow::carregarMapa()
     if(w->getMensagemErro().isEmpty())
     {
             rodando = 1;
+            Limpo = 0;
     }
 }
 
 void MainWindow::onClickBotaoPasso()
 {
-    while(true)
+    while(w->get_qtd_sujeira() != w->get_qtd_sujeira_gerada())
     {
+        qDebug() << w->get_qtd_sujeira() << " gerada: " << w->get_qtd_sujeira_gerada();
         delay();
         w->realizarUmaAcao();
         desenharCena();
@@ -51,7 +57,7 @@ void MainWindow::onClickBotaoPasso()
 
 void MainWindow::delay()
 {
-        QTime dieTime= QTime::currentTime().addMSecs(150);
+        QTime dieTime= QTime::currentTime().addMSecs(50);
         while (QTime::currentTime() < dieTime)
             QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
 }
@@ -87,6 +93,15 @@ void MainWindow::desenharCena()
                 brush->setColor(QColor(corSujeira, corSujeira, corSujeira));
 
             }
+            if(w->getMundo().at(i)->at(j) == 1) //codigo da sujeira
+            {
+                //int sujeira = w->getMundo().at(i)->at(j);
+                int corSujeira = 100;
+
+                pen->setColor(QColor(corSujeira, corSujeira, corSujeira));
+                brush->setColor(QColor(corSujeira, corSujeira, corSujeira));
+
+            }
 
             cena->addRect(i*TAMANHO_RETANGULO, j * TAMANHO_RETANGULO, TAMANHO_RETANGULO, TAMANHO_RETANGULO, *pen, *brush);
 
@@ -112,57 +127,61 @@ void MainWindow::desenharCena()
 
     switch (acao)
     {
-        case Agente::PARADO:
-            //nada
+    case Agente::PARADO:
+        //nada
         break;
 
-        case Agente::CIMA:
-            triangle.push_back(QPoint(posX + TAMANHO_RETANGULO / 2,
-                                      posY + TAMANHO_RETANGULO / 10));
-            triangle.push_back(QPoint(posX + TAMANHO_RETANGULO / 10,
-                                      posY + TAMANHO_RETANGULO * 9 / 10));
-            triangle.push_back(QPoint(posX + TAMANHO_RETANGULO * 9 / 10,
-                                      posY + TAMANHO_RETANGULO * 9 / 10));
+    case Agente::LIMPOU: //pinta de amarelo
+        pen.setColor(QColor(255, 255, 0));
+        brush.setColor(QColor(255, 255, 0));
+
+    case Agente::CIMA:
+        triangle.push_back(QPoint(posX + TAMANHO_RETANGULO / 2,
+                                  posY + TAMANHO_RETANGULO / 10));
+        triangle.push_back(QPoint(posX + TAMANHO_RETANGULO / 10,
+                                  posY + TAMANHO_RETANGULO * 9 / 10));
+        triangle.push_back(QPoint(posX + TAMANHO_RETANGULO * 9 / 10,
+                                  posY + TAMANHO_RETANGULO * 9 / 10));
 
         break;
 
-        case Agente::BAIXO:
-            triangle.push_back(QPoint(posX + TAMANHO_RETANGULO / 2,
-                                      posY + TAMANHO_RETANGULO * 9 / 10));
-            triangle.push_back(QPoint(posX + TAMANHO_RETANGULO / 10,
-                                      posY + TAMANHO_RETANGULO / 10));
-            triangle.push_back(QPoint(posX + TAMANHO_RETANGULO * 9 / 10,
-                                      posY + TAMANHO_RETANGULO / 10));
+    case Agente::BAIXO:
+        triangle.push_back(QPoint(posX + TAMANHO_RETANGULO / 2,
+                                  posY + TAMANHO_RETANGULO * 9 / 10));
+        triangle.push_back(QPoint(posX + TAMANHO_RETANGULO / 10,
+                                  posY + TAMANHO_RETANGULO / 10));
+        triangle.push_back(QPoint(posX + TAMANHO_RETANGULO * 9 / 10,
+                                  posY + TAMANHO_RETANGULO / 10));
         break;
 
-        case Agente::ESQUERDA:
-            triangle.push_back(QPoint(posX + TAMANHO_RETANGULO / 10,
-                                      posY + TAMANHO_RETANGULO / 2));
-            triangle.push_back(QPoint(posX + TAMANHO_RETANGULO * 9 / 10,
-                                      posY + TAMANHO_RETANGULO / 10));
-            triangle.push_back(QPoint(posX + TAMANHO_RETANGULO * 9 / 10,
-                                      posY + TAMANHO_RETANGULO * 9 / 10));
+    case Agente::ESQUERDA:
+        triangle.push_back(QPoint(posX + TAMANHO_RETANGULO / 10,
+                                  posY + TAMANHO_RETANGULO / 2));
+        triangle.push_back(QPoint(posX + TAMANHO_RETANGULO * 9 / 10,
+                                  posY + TAMANHO_RETANGULO / 10));
+        triangle.push_back(QPoint(posX + TAMANHO_RETANGULO * 9 / 10,
+                                  posY + TAMANHO_RETANGULO * 9 / 10));
         break;
 
-        case Agente::DIREITA:
-            triangle.push_back(QPoint(posX + TAMANHO_RETANGULO * 9 / 10,
-                                      posY + TAMANHO_RETANGULO / 2));
-            triangle.push_back(QPoint(posX + TAMANHO_RETANGULO / 10,
-                                      posY + TAMANHO_RETANGULO / 10));
-            triangle.push_back(QPoint(posX + TAMANHO_RETANGULO / 10,
-                                      posY + TAMANHO_RETANGULO * 9 / 10));
+    case Agente::DIREITA:
+        triangle.push_back(QPoint(posX + TAMANHO_RETANGULO * 9 / 10,
+                                  posY + TAMANHO_RETANGULO / 2));
+        triangle.push_back(QPoint(posX + TAMANHO_RETANGULO / 10,
+                                  posY + TAMANHO_RETANGULO / 10));
+        triangle.push_back(QPoint(posX + TAMANHO_RETANGULO / 10,
+                                  posY + TAMANHO_RETANGULO * 9 / 10));
         break;
 
-        default:
-            //nada
+    default:
+        //nada
         break;
     }
 
     if(acao == Agente::PARADO)
         cena->addRect(posX + TAMANHO_RETANGULO / 10,
-                       posY + TAMANHO_RETANGULO / 10,
-                       TAMANHO_RETANGULO * 4 / 5, TAMANHO_RETANGULO * 4 / 5,
-                       pen, brush);
+                      posY + TAMANHO_RETANGULO / 10,
+                      TAMANHO_RETANGULO * 4 / 5, TAMANHO_RETANGULO * 4 / 5,
+                      pen, brush);
     else
         cena->addPolygon(QPolygon(triangle), pen, brush);
 
@@ -186,10 +205,18 @@ void MainWindow::atualizar()
     case Agente::DIREITA:
         ultimaAcao = "Direita";
         break;
+    case Agente::LIMPOU:
+        ultimaAcao = "Limpou";
+        Limpo++;
+        qtdLimpo->setText(QString::number(Limpo));
+        break;
     default:
         ultimaAcao = "Parado";
         break;
     }
 
-    ultimaAcao.append((w->getBateu())? (QString("Bateu!")):(NULL));
+    if(w->getBateu())
+        ultimaAcao.append((QString("Bateu!")));
+    else
+        ultimaAcao.append(NULL);
 }

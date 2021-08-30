@@ -21,7 +21,7 @@ class Mundo
 public:
     Mundo(string);
 
-    QVector< QVector<int> * > getMundo()
+    vector< vector<int> * > getMundo()
     {
         return mundo;
     }
@@ -62,6 +62,21 @@ public:
         return bateu;
     }
 
+    bool getLimpou()
+    {
+        return limpou;
+    }
+
+    int get_qtd_sujeira_gerada()
+    {
+        return qtd_sujeira_gerada;
+    }
+
+    int get_qtd_sujeira()
+    {
+        return qtd_sujeira;
+    }
+
     QString getMensagemErro(){ return mensagemErro;}
 
     void realizarAcao(Agente::acoes acao);
@@ -70,8 +85,11 @@ public:
 
 private:
 
-    QVector< QVector<int> * > mundo;
+    vector< vector<int> * > mundo;
 
+    bool limpou;
+    int qtd_sujeira;
+    int qtd_sujeira_gerada;
     bool bateu;
     QString mensagemErro;
     int currentTime;
@@ -79,10 +97,11 @@ private:
     unsigned long energiaConsumida;
     /* desenho do mapa */
 
-    static const int OBSTACULO = -1;
+    static const int OBSTACULO = -1, SUJEIRA = 1;
 
     static const char MAPA_OBSTACULO = 'O',
-                      MAPA_CAMINHO = '-';
+                      MAPA_CAMINHO = '-',
+                      MAPA_SUJEIRA = 'x';
 
 
     int agentePosX, agentePosY;

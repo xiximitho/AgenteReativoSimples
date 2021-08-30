@@ -3,6 +3,9 @@
 Mundo::Mundo(string filename)
 {
     bateu = false;
+    qtd_sujeira = 0;
+    qtd_sujeira_gerada = 0;
+    limpou = false;
     currentTime = 0;
 
     /* Lê e inicializa o mapa*/
@@ -93,22 +96,27 @@ Mundo::Mundo(string filename)
             };
             switch(c)
             {
-                case MAPA_OBSTACULO:
-                    val = OBSTACULO;
-                    break;
+            case MAPA_OBSTACULO:
+                val = OBSTACULO;
+                break;
 
-                case MAPA_CAMINHO:
-                    val = 0;
-                    break;
+            case MAPA_SUJEIRA:
+                val = SUJEIRA;
+                qtd_sujeira_gerada ++;
+                break;
 
-                default:
-                    mensagemErro = "Erro de leitura de caractere";
+            case MAPA_CAMINHO:
+                val = 0;
+                break;
 
-                    return;
+            default:
+                mensagemErro = "Erro de leitura de caractere";
+
+                return;
             }
             if(nlinha == 0)
             {
-                mundo.push_back(new QVector<int>);
+                mundo.push_back(new vector<int>);
                 mundo.back()->push_back(val);
             }
             else
@@ -146,6 +154,7 @@ Mundo::Mundo(string filename)
 void Mundo::realizarAcao(Agente::acoes acao)
 {
     bateu = false;
+    limpou = false;
 
     switch (acao) {
     case Agente::ESQUERDA:
@@ -199,6 +208,15 @@ void Mundo::realizarAcao(Agente::acoes acao)
         };
         energiaConsumida++;
         break;
+    case Agente::LIMPOU:
+        if(mundo[agentePosX]->at(agentePosY) > 0)
+        {
+            mundo[agentePosX]->at(agentePosY)--;
+        };
+        energiaConsumida += 2;
+        qtd_sujeira++;
+        qDebug() << "limpou";
+        break;
 
     case Agente::PARADO:
         break;
@@ -210,7 +228,58 @@ void Mundo::realizarAcao(Agente::acoes acao)
 
 void Mundo::realizarUmaAcao()
 {
-    realizarAcao(agente->act(bateu, mundo[agentePosX]->at(agentePosY), ultimaAcao));
+    if(ultimaAcao == Agente::CIMA && !bateu)
+    {
+        realizarAcao(agente->act(bateu, mundo[agentePosX]->at(agentePosY), Agente::CIMA));
+        qDebug() << "CIMA !bateu";
+    }
+    else if(ultimaAcao == Agente::BAIXO && !bateu){
+        realizarAcao(agente->act(bateu, mundo[agentePosX]->at(agentePosY), Agente::BAIXO));
+        qDebug() << "BAIXO !bateu";
+    }
+    else if(ultimaAcao == Agente::ESQUERDA && !bateu){
+        realizarAcao(agente->act(bateu, mundo[agentePosX]->at(agentePosY), Agente::ESQUERDA));
+        qDebug() << "ESQUERDA !bateu";
+    }
+    else if(ultimaAcao == Agente::DIREITA && !bateu){
+        realizarAcao(agente->act(bateu, mundo[agentePosX]->at(agentePosY), Agente::DIREITA));
+        qDebug() << "DIREITA !bateu";
+    }
+    else if (ultimaAcao == Agente::PARADO){
+        realizarAcao(agente->act(bateu, mundo[agentePosX]->at(agentePosY), Agente::CIMA));
+        qDebug() << "PARADO";
+    }
+    else if (bateu){ //movimento randomico
+        realizarAcao(agente->act(bateu, mundo[agentePosX]->at(agentePosY), static_cast<Agente::acoes>(rand() % 4)));
+           qDebug() << "BATEU";
+    }
+    else
+    {//movimento randomico
+        realizarAcao(agente->act(bateu, mundo[agentePosX]->at(agentePosY), Agente::CIMA));
+           qDebug() << "NBATEU";
+    }
+    /*else if (ultimaAcao == Agente::CIMA && bateu){
+        realizarAcao(agente->act(bateu, mundo[agentePosX]->at(agentePosY), Agente::ESQUERDA));
+        qDebug() << "CIMA bateu";
+    }
+    else if (ultimaAcao == Agente::ESQUERDA && bateu){
+        realizarAcao(agente->act(bateu, mundo[agentePosX]->at(agentePosY), Agente::DIREITA));
+        qDebug() << "ESQUERDA bateu";
+    }
+    else if (ultimaAcao == Agente::DIREITA && bateu){
+        realizarAcao(agente->act(bateu, mundo[agentePosX]->at(agentePosY), Agente::BAIXO));
+        qDebug() << "DIREITA bateu";
+    }
+//    else if (ultimaAcao == Agente::BAIXO && bateu){
+//        realizarAcao(agente->act(bateu, mundo[agentePosX]->at(agentePosY), Agente::ESQUERDA));
+//        qDebug() << "BAIXO bateu";
+//    }
+
+    else{ //Chama randomicamente
+
+    }*/
+
+
 
 }
 
@@ -220,7 +289,7 @@ void Mundo::resetMapa()
         for(int linha= 0; linha < ALTURA_MUNDO; linha++)
             if(mundo[col]->at(linha) != OBSTACULO)
             {
-                mundo.replace(mundo[col]->at(linha), 0);
+                mundo[col]->at(linha) = 0;
             }
 
     /*resetar a posicao do agente*/
