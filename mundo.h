@@ -19,7 +19,7 @@ using std::istringstream;
 class Mundo
 {
 public:
-    Mundo(string);
+    Mundo(string, bool = false);
 
     vector< vector<int> * > getMundo()
     {

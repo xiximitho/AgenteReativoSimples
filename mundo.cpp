@@ -1,28 +1,33 @@
 #include "mundo.h"
 
-Mundo::Mundo(string filename)
+Mundo::Mundo(string filename, bool aleatorio)
 {
+    qDebug() << QString::fromStdString(filename);
     bateu = false;
     qtd_sujeira = 0;
     qtd_sujeira_gerada = 0;
     limpou = false;
     currentTime = 0;
 
+    qDebug() << "1";
     /* Lê e inicializa o mapa*/
     string linha;
     ifstream mapFile(filename.c_str());
+    qDebug() << "2";
     getline(mapFile, linha);
     while (linha.substr(0,2).compare("//") == 0 || linha.empty()
             || linha.find_first_not_of(' ') == string::npos)
     {
         getline(mapFile, linha);
-
+        qDebug() << "getL" << QString::fromStdString(linha) ;
         if(mapFile.eof())
         {
             mensagemErro = "Final de linha";
+            qDebug() << "FINAL";
             break;
         }
     }
+    qDebug() << "3";
 
     istringstream parametros(linha);
 
@@ -114,6 +119,16 @@ Mundo::Mundo(string filename)
 
                 return;
             }
+            //Randomizar
+            if(aleatorio && val != OBSTACULO && val != SUJEIRA)
+            {
+                if(rand() % 2 == 1)
+                {
+                    qDebug() << "gerando aleatorio";
+                   val = SUJEIRA;
+                   qtd_sujeira_gerada++;
+                }
+            }
             if(nlinha == 0)
             {
                 mundo.push_back(new vector<int>);
@@ -150,6 +165,7 @@ Mundo::Mundo(string filename)
     agente = new Agente();
 
 }
+
 
 void Mundo::realizarAcao(Agente::acoes acao)
 {
@@ -245,13 +261,13 @@ void Mundo::realizarUmaAcao()
         realizarAcao(agente->act(bateu, mundo[agentePosX]->at(agentePosY), Agente::DIREITA));
         qDebug() << "DIREITA !bateu";
     }
-    else if (ultimaAcao == Agente::PARADO){
-        realizarAcao(agente->act(bateu, mundo[agentePosX]->at(agentePosY), Agente::CIMA));
-        qDebug() << "PARADO";
-    }
     else if (bateu){ //movimento randomico
         realizarAcao(agente->act(bateu, mundo[agentePosX]->at(agentePosY), static_cast<Agente::acoes>(rand() % 4)));
            qDebug() << "BATEU";
+    }
+    else if (ultimaAcao == Agente::PARADO){
+        realizarAcao(agente->act(bateu, mundo[agentePosX]->at(agentePosY), Agente::CIMA));
+        qDebug() << "PARADO";
     }
     else
     {//movimento randomico

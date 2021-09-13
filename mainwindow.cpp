@@ -2,6 +2,8 @@
 #include <QRandomGenerator>
 #include "agente.h"
 #include <QLabel>
+#include <string>
+using std::string;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -14,28 +16,43 @@ MainWindow::MainWindow(QWidget *parent)
 
     view->resize(500,500);
 
-    fileName = "./teste.map";
-    carregarMapa();
 
-    desenharCena();
-
+    QFileDialog arq (this);
+    arq.setFileMode(QFileDialog::ExistingFile);
+    fileName = "./teste.map";//arq.getOpenFileName();
 
 
     qtdLimpo = new QLabel("", this);
+    qtdLimpo->move(5, 0);
 
     btnIniciar = new QPushButton("Iniciar", this);
-    btnIniciar->move(btnIniciar->x() + 20, btnIniciar->y());
+    btnIniciar->move(btnIniciar->x() + 22, btnIniciar->y());
 
+    final = new QLabel("", this);
+    final->move(150, btnIniciar->y()+7);
+    final->resize(180, 13);
+    aleatorio = false;
+
+    chkAleatorio = new QCheckBox("Randomizar", this);
+    chkAleatorio->move(final->x()+final->width() + 20, btnIniciar->y());
+    connect(chkAleatorio, &QCheckBox::clicked, this, &MainWindow::onClickRandom);
     connect(btnIniciar, &QPushButton::clicked, this, &MainWindow::onClickBotaoPasso);
+    connect(this, &MainWindow::destroyed, this, &MainWindow::onClose);
 }
 
 MainWindow::~MainWindow()
 {
 }
 
+void MainWindow::onClose()
+{
+    exit(0);
+}
+
 void MainWindow::carregarMapa()
 {
-    w = new Mundo(fileName.toLocal8Bit().constData());
+    w = new Mundo(fileName.toLocal8Bit().constData(), aleatorio);//.toLocal8Bit().constData());
+
     if(w->getMensagemErro().isEmpty())
     {
             rodando = 1;
@@ -43,22 +60,43 @@ void MainWindow::carregarMapa()
     }
 }
 
+void MainWindow::onClickRandom()
+{
+    if(this->aleatorio == true)
+        this->aleatorio = false;
+    else
+        this->aleatorio = true;
+
+}
+
 void MainWindow::onClickBotaoPasso()
 {
-    while(w->get_qtd_sujeira() != w->get_qtd_sujeira_gerada())
+    carregarMapa();
+    desenharCena();
+
+    QTime tempoMax = QTime::currentTime().addSecs(10);
+    //while(w->get_qtd_sujeira() != w->get_qtd_sujeira_gerada())
+    while(QTime::currentTime() < tempoMax)
     {
         qDebug() << w->get_qtd_sujeira() << " gerada: " << w->get_qtd_sujeira_gerada();
         delay();
         w->realizarUmaAcao();
         desenharCena();
     }
+
+    int limpo = w->get_qtd_sujeira();
+    qDebug() << "limpou " << limpo << " em 10s";
+
+    double porcentagemLimpa =  limpo*100/w->get_qtd_sujeira_gerada();
+    final->setText("Limpou " + QString::number(limpo) + " de "+QString::number(w->get_qtd_sujeira_gerada())+ " em 10s = "+QString::number(porcentagemLimpa) + "% ");
+
     //w->resetMapa();
 }
 
 void MainWindow::delay()
 {
-        QTime dieTime= QTime::currentTime().addMSecs(50);
-        while (QTime::currentTime() < dieTime)
+        QTime tempoEspera= QTime::currentTime().addMSecs(50);
+        while (QTime::currentTime() < tempoEspera)
             QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
 }
 void MainWindow::setTamanhoLabirinto(long Tamanho)

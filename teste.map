@@ -1,12 +1,12 @@
-// Initial position, dirty probability, random seed, map
-5 5 0.01 1
+// Posicao Inicial
+5 8
 O O O O O O O O O O
-O - - - - - - - - O
+O - - x - - - - - O
 O - O O O O O O - O
-O - O - - - - - - O
+O - O x - x - O - O
 O - O - x - - O - O
 O - O - - - - O - O
 O - O - - x - O - O
-O - O O x O O O - O
-O - - - - - x - - O
+O - O - - - x O - O
+O - - x - - x - - O
 O O O O O O O O O O

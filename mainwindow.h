@@ -18,16 +18,21 @@ public:
     long getTamanhoLabirinto();
     void desenharCena();
     void carregarMapa();
+    void onClose();
 
 protected:
     QString fileName;
 private slots:
     void onClickBotaoPasso();
+    void onClickRandom();
 private:
     QGraphicsView *view;
     QGraphicsScene *cena;
     QLabel *qtdLimpo;
     QPushButton *btnIniciar;
+    QCheckBox *chkAleatorio;
+    bool aleatorio;
+    QLabel *final;
     long Tamanho;
     int rodando;
     void delay();
